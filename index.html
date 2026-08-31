@@ -3,330 +3,225 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Bharat TV Pro - Multi-Stream Player</title>
+  <title>JARVIS - Personal AI Copilot</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #0b0f19; color: #f1f5f9; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .active-cat { background: linear-gradient(135deg, #f97316, #ea580c) !important; color: white !important; font-weight: 700; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35); }
-    .vlc-glow { box-shadow: 0 0 25px -5px rgba(249, 115, 22, 0.25); }
+    body { background-color: #050811; color: #e2e8f0; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.3); }
+    .pulse-ring { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .7; transform: scale(1.05); } }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- HEADER -->
-  <header class="w-full bg-slate-900/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
-    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+  <!-- TOP BAR -->
+  <header class="w-full bg-slate-950/80 border-b border-cyan-900/40 p-3.5 sticky top-0 z-50 backdrop-blur">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/30 text-sm">
-          ⚡
+        <div class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs pulse-ring">
+          ◈
         </div>
-        <h1 class="text-base font-bold tracking-tight">Bharat<span class="text-orange-500">TV</span> <span class="text-[10px] uppercase px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-extrabold border border-orange-500/30 ml-1">Pro Engine</span></h1>
+        <h1 class="text-sm font-bold tracking-wider uppercase text-white">
+          JARVIS <span class="text-[10px] text-cyan-400 font-mono">v1.0</span>
+        </h1>
       </div>
-      
-      <div class="flex items-center gap-2">
-        <button onclick="toggleCustomModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-orange-400 border border-slate-700 font-semibold flex items-center gap-1.5 transition">
-          <span>➕ Add M3U / Link</span>
-        </button>
-      </div>
+      <button onclick="toggleKeyModal()" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300 font-mono hover:text-cyan-400 transition">
+        ⚙️ <span id="keyStatus">Set API Key</span>
+      </button>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-4xl mx-auto w-full px-3 py-3 flex-1 flex flex-col gap-3">
-    
-    <!-- STICKY 16:9 VIDEO PLAYER -->
-    <div class="w-full bg-black rounded-2xl overflow-hidden border border-slate-800 vlc-glow relative sticky top-14 z-40 aspect-video">
-      <video id="tvVideo" class="w-full h-full object-contain" playsinline webkit-playsinline controls autoplay></video>
-      <iframe id="ytIframe" class="w-full h-full absolute inset-0 hidden border-0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-      
-      <!-- Native LibVLC Buffer Spinner Overlay -->
-      <div id="loader" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 hidden pointer-events-none">
-        <div class="w-10 h-10 border-4 border-slate-700 border-t-orange-500 rounded-full animate-spin"></div>
-        <span id="loaderText" class="text-xs text-white font-medium">LibVLC Buffering (30s Window)...</span>
+  <!-- CHAT WINDOW -->
+  <main id="chatWindow" class="flex-1 max-w-xl mx-auto w-full p-4 overflow-y-auto space-y-4 pb-28">
+    <!-- Welcome Card -->
+    <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/30 border border-cyan-900/30 glow-cyan">
+      <div class="flex items-center space-x-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <span class="text-xs font-bold text-cyan-400 font-mono uppercase tracking-wider">System Online</span>
       </div>
+      <h2 class="text-sm font-bold text-white mb-1">Namaste! Main aapka personal AI Assistant hoon.</h2>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Mujhse kuch bhi puchiye — YouTube Shorts ideas, Coding help, English to Hindi translation ya Daily Planning. Bol kar ya type karke command dein.
+      </p>
     </div>
-
-    <!-- PLAYING INFO & BUFFER TELEMETRY BAR -->
-    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
-      <div class="min-w-0 flex-1">
-        <h2 id="nowPlayingTitle" class="text-xs sm:text-sm font-bold truncate text-white">Select a channel below</h2>
-        <p id="nowPlayingMeta" class="text-[10px] sm:text-xs text-slate-400 truncate">VLC Multi-threaded Adaptive Bitrate Engine</p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <span class="text-[10px] font-mono bg-black/60 text-slate-300 px-2 py-1 rounded border border-slate-700">
-          Buf: <span id="telemetrySec" class="text-orange-400 font-bold">0.0s</span>
-        </span>
-        <span id="nowPlayingBadge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase">Ready</span>
-      </div>
-    </div>
-
-    <!-- 5 CATEGORY FILTER CHIPS -->
-    <div class="flex items-center space-x-2 overflow-x-auto hide-scrollbar py-1">
-      <button onclick="setCategory('ALL')" id="cat-ALL" class="active-cat px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">⚡ All</button>
-      <button onclick="setCategory('Movies')" id="cat-Movies" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">🎬 Movies</button>
-      <button onclick="setCategory('Cartoons')" id="cat-Cartoons" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">👶 Cartoons & Anime</button>
-      <button onclick="setCategory('Serials')" id="cat-Serials" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">📺 Serials & Shows</button>
-      <button onclick="setCategory('Music')" id="cat-Music" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">🎵 Music</button>
-      <button onclick="setCategory('News')" id="cat-News" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">📰 Top News</button>
-    </div>
-
-    <!-- SEARCH BAR -->
-    <input 
-      id="searchBox" 
-      type="text" 
-      placeholder="🔍 Instant channel search..." 
-      oninput="renderChannels()"
-      class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:border-orange-500"
-    />
-
-    <!-- CHANNELS GRID -->
-    <div id="channelGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-12"></div>
-
   </main>
 
-  <!-- M3U PLAYLIST & SINGLE LINK INJECTOR MODAL -->
-  <div id="customModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- BOTTOM INPUT BAR -->
+  <div class="fixed bottom-0 inset-x-0 bg-slate-950/90 border-t border-slate-900 p-3 backdrop-blur z-40">
+    <div class="max-w-xl mx-auto flex items-center gap-2">
+      <button id="micBtn" onclick="toggleSpeech()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition shrink-0" title="Voice Input">
+        🎙️
+      </button>
+      <input 
+        id="userInput" 
+        type="text" 
+        placeholder="Type a command or ask anything..." 
+        onkeydown="if(event.key === 'Enter') sendQuery()"
+        class="flex-1 px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-500 transition"
+      />
+      <button onclick="sendQuery()" class="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-500/20 shrink-0">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <!-- API KEY MODAL -->
+  <div id="keyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-4 space-y-3">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-          <span>🔗</span> Add Stream or Entire M3U Playlist
-        </h3>
-        <button onclick="toggleCustomModal()" class="text-slate-400 hover:text-white text-base">✕</button>
-      </div>
-      <p class="text-[11px] text-slate-400">
-        Yahan direct <b>.m3u8 stream link</b> dalein ya poori <b>.m3u playlist</b> paste karein (Auto Parse ho jayegi).
+      <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+        <span>🔑</span> Google Gemini API Key
+      </h3>
+      <p class="text-xs text-slate-400">
+        Apni free key paste karein. Yeh sirf aapke phone browser me secure save rahegi.
       </p>
-
-      <input id="customName" type="text" placeholder="Channel / Playlist Name" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-orange-500" />
-      
-      <select id="customCategory" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-300 outline-none focus:border-orange-500">
-        <option value="Auto">✨ Auto Detect Category from M3U</option>
-        <option value="Movies">🎬 Movies</option>
-        <option value="Cartoons">👶 Cartoons & Anime</option>
-        <option value="Serials">📺 Serials & Shows</option>
-        <option value="Music">🎵 Music</option>
-        <option value="News">📰 Top News</option>
-      </select>
-
-      <input id="customUrl" type="text" placeholder="Paste .m3u or .m3u8 Link" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-orange-500" />
-
+      <input id="apiInput" type="password" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500 font-mono" />
       <div class="flex gap-2 pt-1">
-        <button id="saveBtn" onclick="saveCustomChannel()" class="flex-1 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold transition">Save / Parse Link</button>
-        <button onclick="toggleCustomModal()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+        <button onclick="saveApiKey()" class="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition">Save Key</button>
+        <button onclick="toggleKeyModal()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-    // --- 1. DEFAULT WORKING STREAMS (100% Tested) ---
-    const DEFAULT_CHANNELS = [
-      { id: "mov-1", name: "B4U Movies HD", category: "Movies", type: "live", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8383314d027cc14002e1ec0f720f7b62fd7/B4U-Movies-IN/master.m3u8", logo: "🍿" },
-      { id: "car-1", name: "Animax Asia", category: "Cartoons", type: "live", url: "https://d279m93yvdal2t.cloudfront.net/out/v1/Animax_India/index.m3u8", logo: "🦸" },
-      { id: "ser-1", name: "DD National HD", category: "Serials", type: "live", url: "https://amg01448-dd-national-samsungin-6jsh4.amagi.tv/playlist.m3u8", logo: "🇮🇳" },
-      { id: "ser-2", name: "DD Sports Live", category: "Serials", type: "live", url: "https://amg01448-dd-sports-samsungin-5zrcp.amagi.tv/playlist.m3u8", logo: "🏏" },
-      { id: "mus-1", name: "9XM Bollywood", category: "Music", type: "live", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8383314d027cc14002e1ec0f720f7b62fd7/9XM/master.m3u8", logo: "🎸" },
-      { id: "mus-2", name: "9X Jalwa Retro", category: "Music", type: "live", url: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8383314d027cc14002e1ec0f720f7b62fd7/9X-Jalwa/master.m3u8", logo: "💃" },
-      { id: "mus-3", name: "AIR Vividh Bharati", category: "Music", type: "live", url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:Vividh_Bharati/playlist.m3u8", logo: "📻" },
-      { id: "new-1", name: "Aaj Tak HD", category: "News", type: "live", url: "https://feeds.intoday.in/aajtak/api/livetv-video/index.m3u8", logo: "🔴" },
-      { id: "new-2", name: "ABP News", category: "News", type: "live", url: "https://abp-i.akamaihd.net/hls/live/765529/abpnews/master.m3u8", logo: "📰" },
-      { id: "new-3", name: "India TV", category: "News", type: "live", url: "https://indiatvnews.live-s.cdn.bitgravity.com/live/indiatvnews.smil/playlist.m3u8", logo: "🇮🇳" },
-      { id: "new-4", name: "DD News HD", category: "News", type: "live", url: "https://amg01448-dd-news-samsungin-22h7c.amagi.tv/playlist.m3u8", logo: "📡" }
-    ];
+    let apiKey = localStorage.getItem('jarvis_gemini_key') || '';
+    let recognition = null;
+    let isListening = false;
 
-    let customChannels = JSON.parse(localStorage.getItem('bharat_custom_streams') || '[]');
-    let allChannels = [...customChannels, ...DEFAULT_CHANNELS];
-    let currentCategory = 'ALL';
-    let hls = null;
+    // Initialize Voice Recognition if supported
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new Speech();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'hi-IN';
 
-    const video = document.getElementById('tvVideo');
-    const iframe = document.getElementById('ytIframe');
-    const loader = document.getElementById('loader');
+      recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        document.getElementById('userInput').value = text;
+        sendQuery();
+      };
+      recognition.onend = () => {
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('bg-red-500/20', 'border-red-500');
+      };
+    }
 
-    // --- 2. VLC BUFFER TELEMETRY ---
-    setInterval(() => {
-      const telBadge = document.getElementById('telemetrySec');
-      if (!video || video.paused || !video.buffered || video.buffered.length === 0) {
-        telBadge.textContent = '0.0s';
+    function toggleSpeech() {
+      if (!recognition) {
+        alert('Voice input is not supported in this browser. Please use Chrome.');
         return;
       }
-      const cur = video.currentTime;
-      let buf = 0;
-      for (let i = 0; i < video.buffered.length; i++) {
-        if (video.buffered.start(i) <= cur && cur <= video.buffered.end(i)) {
-          buf = video.buffered.end(i) - cur;
-          break;
-        }
-      }
-      telBadge.textContent = buf.toFixed(1) + 's';
-    }, 1000);
-
-    // --- 3. PLAY ENGINE ---
-    function playItem(item) {
-      document.getElementById('nowPlayingTitle').textContent = item.name;
-      document.getElementById('nowPlayingMeta').textContent = `${item.category} • Modified VLC Engine Playback`;
-      document.getElementById('nowPlayingBadge').textContent = item.type === 'live' ? 'LIVE' : 'VOD';
-
-      iframe.classList.add('hidden');
-      iframe.src = '';
-      video.classList.remove('hidden');
-      loader.classList.remove('hidden');
-
-      if (Hls.isSupported()) {
-        if (hls) hls.destroy();
-        hls = new Hls({
-          maxBufferLength: 30,
-          maxMaxBufferLength: 60,
-          enableWorker: true,
-          lowLatencyMode: false
-        });
-        hls.loadSource(item.url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          loader.classList.add('hidden');
-          video.play().catch(() => {});
-        });
-        hls.on(Hls.Events.ERROR, () => {
-          loader.classList.add('hidden');
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = item.url;
-        video.play().catch(() => {});
-        loader.classList.add('hidden');
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // --- 4. RENDER & CATEGORY FILTER ---
-    function setCategory(cat) {
-      currentCategory = cat;
-      document.querySelectorAll('[id^="cat-"]').forEach(btn => btn.classList.remove('active-cat'));
-      document.getElementById('cat-' + cat).classList.add('active-cat');
-      renderChannels();
-    }
-
-    function renderChannels() {
-      const grid = document.getElementById('channelGrid');
-      const search = document.getElementById('searchBox').value.toLowerCase();
-      
-      const filtered = allChannels.filter(c => {
-        const matchesCat = (currentCategory === 'ALL' || c.category === currentCategory);
-        const matchesSearch = c.name.toLowerCase().includes(search) || c.category.toLowerCase().includes(search);
-        return matchesCat && matchesSearch;
-      });
-
-      grid.innerHTML = filtered.map(ch => `
-        <div onclick='playItem(${JSON.stringify(ch)})' class="bg-slate-900 border border-slate-800 hover:border-orange-500/80 p-2.5 sm:p-3 rounded-xl flex items-center space-x-2.5 cursor-pointer active:scale-95 transition">
-          <span class="text-2xl p-1 bg-slate-950 rounded-lg border border-slate-800 shrink-0">${ch.logo || '📺'}</span>
-          <div class="min-w-0 flex-1">
-            <h3 class="text-xs font-bold text-white truncate">${ch.name}</h3>
-            <span class="text-[10px] text-orange-400 font-medium">${ch.category}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // --- 5. PARSE ENTIRE M3U OR SINGLE M3U8 LINK ---
-    function toggleCustomModal() {
-      document.getElementById('customModal').classList.toggle('hidden');
-    }
-
-    async function saveCustomChannel() {
-      const name = document.getElementById('customName').value.trim();
-      const catInput = document.getElementById('customCategory').value;
-      const url = document.getElementById('customUrl').value.trim();
-      const saveBtn = document.getElementById('saveBtn');
-
-      if (!url) {
-        alert('Please enter a valid Stream or M3U URL');
-        return;
-      }
-
-      // Check if user entered an M3U Playlist file
-      if (url.endsWith('.m3u') || url.endsWith('.m3u8') && url.includes('/iptv/')) {
-        saveBtn.textContent = 'Parsing Playlist...';
-        try {
-          // Fetch via CORS Proxy
-          let res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url));
-          let text = await res.text();
-          let parsed = parseM3UPlaylist(text);
-
-          if (parsed.length > 0) {
-            customChannels = [...parsed, ...customChannels];
-            localStorage.setItem('bharat_custom_streams', JSON.stringify(customChannels));
-            allChannels = [...customChannels, ...DEFAULT_CHANNELS];
-            alert(`Success: Parsed and added ${parsed.length} channels!`);
-          } else {
-            alert('No valid streams found inside this M3U file.');
-          }
-        } catch (err) {
-          alert('Failed to parse M3U. Check connection or CORS proxy.');
-        }
-        saveBtn.textContent = 'Save / Parse Link';
+      if (isListening) {
+        recognition.stop();
       } else {
-        // Single M3U8 Stream link
-        const newChan = {
-          id: 'cust-' + Date.now(),
-          name: name || 'Custom Stream',
-          category: catInput === 'Auto' ? 'Movies' : catInput,
-          type: 'live',
-          url: url,
-          logo: '⭐'
-        };
-        customChannels.unshift(newChan);
-        localStorage.setItem('bharat_custom_streams', JSON.stringify(customChannels));
-        allChannels = [...customChannels, ...DEFAULT_CHANNELS];
-        playItem(newChan);
+        recognition.start();
+        isListening = true;
+        document.getElementById('micBtn').classList.add('bg-red-500/20', 'border-red-500');
       }
-
-      toggleCustomModal();
-      document.getElementById('customName').value = '';
-      document.getElementById('customUrl').value = '';
-      renderChannels();
     }
 
-    // Internal M3U Parser logic
-    function parseM3UPlaylist(content) {
-      const lines = content.split('\n');
-      const result = [];
-      let temp = {};
+    function toggleKeyModal() {
+      document.getElementById('keyModal').classList.toggle('hidden');
+    }
 
-      for (let line of lines) {
-        line = line.trim();
-        if (line.startsWith('#EXTINF:')) {
-          const nameMatch = line.match(/,(.+)$/);
-          temp.name = nameMatch ? nameMatch[1].trim() : 'Channel';
-          
-          // Auto categorizer
-          const str = (line + ' ' + temp.name).toLowerCase();
-          if (str.includes('movie') || str.includes('cinema')) temp.category = 'Movies';
-          else if (str.includes('cartoon') || str.includes('anime') || str.includes('kids')) temp.category = 'Cartoons';
-          else if (str.includes('news') || str.includes('samachar') || str.includes('aaj tak')) temp.category = 'News';
-          else if (str.includes('music') || str.includes('gaana') || str.includes('9x')) temp.category = 'Music';
-          else temp.category = 'Serials';
+    function saveApiKey() {
+      const val = document.getElementById('apiInput').value.trim();
+      if (!val) return;
+      apiKey = val;
+      localStorage.setItem('jarvis_gemini_key', val);
+      document.getElementById('keyStatus').textContent = 'Key Active ✅';
+      toggleKeyModal();
+    }
 
-          temp.logo = '📡';
-        } else if (line.startsWith('http://') || line.startsWith('https://')) {
-          if (temp.name) {
-            temp.url = line;
-            temp.id = 'm3u-' + Math.random().toString(36).substr(2, 9);
-            temp.type = 'live';
-            result.push({ ...temp });
-            temp = {};
-          }
+    if (apiKey) {
+      document.getElementById('keyStatus').textContent = 'Key Active ✅';
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const clean = text.replace(/[*#_`]/g, '');
+        const utter = new SpeechSynthesisUtterance(clean);
+        utter.lang = 'hi-IN';
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const win = document.getElementById('chatWindow');
+      const isUser = sender === 'user';
+      
+      const box = document.createElement('div');
+      box.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+      box.innerHTML = `
+        <div class="max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${
+          isUser 
+            ? 'bg-cyan-600 text-white rounded-tr-none' 
+            : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-md'
+        }">
+          <p class="font-bold text-[10px] mb-1 opacity-70 font-mono">${isUser ? 'YOU' : 'JARVIS'}</p>
+          <div class="whitespace-pre-wrap">${text}</div>
+        </div>
+      `;
+      win.appendChild(box);
+      win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
+    }
+
+    async function sendQuery() {
+      const input = document.getElementById('userInput');
+      const query = input.value.trim();
+      if (!query) return;
+
+      if (!apiKey) {
+        toggleKeyModal();
+        return;
+      }
+
+      appendMessage('user', query);
+      input.value = '';
+
+      // Add loading state
+      const win = document.getElementById('chatWindow');
+      const loadingBox = document.createElement('div');
+      loadingBox.id = 'tempLoader';
+      loadingBox.className = 'flex justify-start';
+      loadingBox.innerHTML = `
+        <div class="p-3 bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none text-xs text-cyan-400 font-mono flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce"></span>
+          <span>Thinking...</span>
+        </div>
+      `;
+      win.appendChild(loadingBox);
+      win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: query }] }],
+            systemInstruction: { parts: [{ text: "You are JARVIS, a concise, highly intelligent and helpful AI assistant. Answer directly and smartly in Hindi/Hinglish." }] }
+          })
+        });
+
+        const data = await res.json();
+        document.getElementById('tempLoader')?.remove();
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          const aiResponse = data.candidates[0].content.parts[0].text;
+          appendMessage('ai', aiResponse);
+          speak(aiResponse);
+        } else {
+          appendMessage('ai', 'Error: Invalid API response. Check your API Key.');
         }
+      } catch (err) {
+        document.getElementById('tempLoader')?.remove();
+        appendMessage('ai', 'Connection failed. Please check internet or API Key.');
       }
-      return result;
     }
-
-    // Initialize
-    renderChannels();
-    playItem(allChannels[0]);
   </script>
 </body>
 </html>
