@@ -42,7 +42,7 @@
       </div>
       <h2 class="text-sm font-bold text-white mb-1">Namaste! Main aapka personal AI Assistant hoon.</h2>
       <p class="text-xs text-slate-400 leading-relaxed">
-        Mujhse kuch bhi puchiye — YouTube Shorts ideas, Coding, translation ya daily tasks.
+        Mujhse kuch bhi puchiye — YouTube ideas, Coding, translation ya planning.
       </p>
     </div>
   </main>
@@ -73,7 +73,7 @@
         <span>🔑</span> Google Gemini API Key
       </h3>
       <p class="text-xs text-slate-400">
-        Apni Gemini API Key yahan paste karein:
+        Apni key paste karein (dhyaan rakhein aage/peeche space na ho):
       </p>
       <input id="apiInput" type="text" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500 font-mono" />
       <div class="flex gap-2 pt-1">
@@ -107,7 +107,7 @@
 
     function toggleSpeech() {
       if (!recognition) {
-        alert('Voice input not supported in this browser.');
+        alert('Voice recognition not supported in this browser.');
         return;
       }
       if (isListening) {
@@ -192,43 +192,35 @@
       win.appendChild(loadingBox);
       win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
 
-      // Supported model fallback list
-      const endpoints = [
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`,
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey.trim()}`,
-        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey.trim()}`
-      ];
+      try {
+        const cleanKey = apiKey.trim();
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+        
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: "You are JARVIS. Answer helpfully and concisely in Hindi/Hinglish.\n\nUser: " + query }]
+            }]
+          })
+        });
 
-      const promptText = `You are JARVIS, an intelligent and concise AI assistant. Answer directly and smartly in Hindi/Hinglish.\n\nUser Question: ${query}`;
-      let success = false;
-
-      for (let url of endpoints) {
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }] }]
-            })
-          });
-
-          const data = await res.json();
-          if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-            document.getElementById('tempLoader')?.remove();
-            const aiResponse = data.candidates[0].content.parts[0].text;
-            appendMessage('ai', aiResponse);
-            speak(aiResponse);
-            success = true;
-            break;
-          }
-        } catch (e) {
-          // Try next endpoint
-        }
-      }
-
-      if (!success) {
+        const data = await res.json();
         document.getElementById('tempLoader')?.remove();
-        appendMessage('ai', 'Error: API key invalid ya quota limit reached. Kripya naye API key ke sath try karein.');
+
+        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+          const aiResponse = data.candidates[0].content.parts[0].text;
+          appendMessage('ai', aiResponse);
+          speak(aiResponse);
+        } else if (data.error) {
+          appendMessage('ai', `Status ${res.status}: ${data.error.message}`);
+        } else {
+          appendMessage('ai', JSON.stringify(data));
+        }
+      } catch (err) {
+        document.getElementById('tempLoader')?.remove();
+        appendMessage('ai', 'Network Error: ' + err.message);
       }
     }
   </script>
