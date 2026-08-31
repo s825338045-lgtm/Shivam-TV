@@ -42,7 +42,7 @@
       </div>
       <h2 class="text-sm font-bold text-white mb-1">Namaste! Main aapka personal AI Assistant hoon.</h2>
       <p class="text-xs text-slate-400 leading-relaxed">
-        Mujhse kuch bhi puchiye — YouTube ideas, Coding, translation ya planning.
+        Mujhse kuch bhi puchiye — YouTube Shorts ideas, Coding, translation ya daily tasks.
       </p>
     </div>
   </main>
@@ -73,7 +73,7 @@
         <span>🔑</span> Google Gemini API Key
       </h3>
       <p class="text-xs text-slate-400">
-        Apni Gemini API Key yahan paste karein (ye aapke browser me safe rahegi):
+        Apni Gemini API Key yahan paste karein:
       </p>
       <input id="apiInput" type="text" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500 font-mono" />
       <div class="flex gap-2 pt-1">
@@ -107,7 +107,7 @@
 
     function toggleSpeech() {
       if (!recognition) {
-        alert('Voice recognition not supported in this browser.');
+        alert('Voice input not supported in this browser.');
         return;
       }
       if (isListening) {
@@ -192,35 +192,43 @@
       win.appendChild(loadingBox);
       win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
 
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`;
-        const promptText = `You are JARVIS, an intelligent and concise AI assistant. Answer directly and smartly in Hindi/Hinglish.\n\nUser Question: ${query}`;
+      // Supported model fallback list
+      const endpoints = [
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey.trim()}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey.trim()}`
+      ];
 
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: promptText }]
-            }]
-          })
-        });
+      const promptText = `You are JARVIS, an intelligent and concise AI assistant. Answer directly and smartly in Hindi/Hinglish.\n\nUser Question: ${query}`;
+      let success = false;
 
-        const data = await res.json();
-        document.getElementById('tempLoader')?.remove();
+      for (let url of endpoints) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
 
-        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          const aiResponse = data.candidates[0].content.parts[0].text;
-          appendMessage('ai', aiResponse);
-          speak(aiResponse);
-        } else if (data.error) {
-          appendMessage('ai', 'Google API Error: ' + data.error.message);
-        } else {
-          appendMessage('ai', 'Received empty response from API.');
+          const data = await res.json();
+          if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+            document.getElementById('tempLoader')?.remove();
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            appendMessage('ai', aiResponse);
+            speak(aiResponse);
+            success = true;
+            break;
+          }
+        } catch (e) {
+          // Try next endpoint
         }
-      } catch (err) {
+      }
+
+      if (!success) {
         document.getElementById('tempLoader')?.remove();
-        appendMessage('ai', 'Network error: ' + err.message);
+        appendMessage('ai', 'Error: API key invalid ya quota limit reached. Kripya naye API key ke sath try karein.');
       }
     }
   </script>
