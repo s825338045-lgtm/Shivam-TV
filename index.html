@@ -9,7 +9,6 @@
   <style>
     * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: #050811; color: #e2e8f0; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
     .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.3); }
     .pulse-ring { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .7; transform: scale(1.05); } }
@@ -36,7 +35,6 @@
 
   <!-- CHAT WINDOW -->
   <main id="chatWindow" class="flex-1 max-w-xl mx-auto w-full p-4 overflow-y-auto space-y-4 pb-28">
-    <!-- Welcome Card -->
     <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/30 border border-cyan-900/30 glow-cyan">
       <div class="flex items-center space-x-2 mb-2">
         <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
@@ -44,7 +42,7 @@
       </div>
       <h2 class="text-sm font-bold text-white mb-1">Namaste! Main aapka personal AI Assistant hoon.</h2>
       <p class="text-xs text-slate-400 leading-relaxed">
-        Mujhse kuch bhi puchiye — YouTube Shorts ideas, Coding help, English to Hindi translation ya Daily Planning. Bol kar ya type karke command dein.
+        Mujhse kuch bhi puchiye — YouTube ideas, Coding, translation ya planning.
       </p>
     </div>
   </main>
@@ -52,7 +50,7 @@
   <!-- BOTTOM INPUT BAR -->
   <div class="fixed bottom-0 inset-x-0 bg-slate-950/90 border-t border-slate-900 p-3 backdrop-blur z-40">
     <div class="max-w-xl mx-auto flex items-center gap-2">
-      <button id="micBtn" onclick="toggleSpeech()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition shrink-0" title="Voice Input">
+      <button id="micBtn" onclick="toggleSpeech()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition shrink-0">
         🎙️
       </button>
       <input 
@@ -75,9 +73,9 @@
         <span>🔑</span> Google Gemini API Key
       </h3>
       <p class="text-xs text-slate-400">
-        Apni free key paste karein. Yeh sirf aapke phone browser me secure save rahegi.
+        Apni Gemini API Key yahan paste karein (ye aapke browser me safe rahegi):
       </p>
-      <input id="apiInput" type="password" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500 font-mono" />
+      <input id="apiInput" type="text" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-cyan-500 font-mono" />
       <div class="flex gap-2 pt-1">
         <button onclick="saveApiKey()" class="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition">Save Key</button>
         <button onclick="toggleKeyModal()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
@@ -90,7 +88,6 @@
     let recognition = null;
     let isListening = false;
 
-    // Initialize Voice Recognition if supported
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new Speech();
@@ -99,8 +96,7 @@
       recognition.lang = 'hi-IN';
 
       recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        document.getElementById('userInput').value = text;
+        document.getElementById('userInput').value = event.results[0][0].transcript;
         sendQuery();
       };
       recognition.onend = () => {
@@ -111,7 +107,7 @@
 
     function toggleSpeech() {
       if (!recognition) {
-        alert('Voice input is not supported in this browser. Please use Chrome.');
+        alert('Voice recognition not supported in this browser.');
         return;
       }
       if (isListening) {
@@ -183,7 +179,6 @@
       appendMessage('user', query);
       input.value = '';
 
-      // Add loading state
       const win = document.getElementById('chatWindow');
       const loadingBox = document.createElement('div');
       loadingBox.id = 'tempLoader';
@@ -198,28 +193,34 @@
       win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' });
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`;
+        const promptText = `You are JARVIS, an intelligent and concise AI assistant. Answer directly and smartly in Hindi/Hinglish.\n\nUser Question: ${query}`;
+
+        const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: query }] }],
-            systemInstruction: { parts: [{ text: "You are JARVIS, a concise, highly intelligent and helpful AI assistant. Answer directly and smartly in Hindi/Hinglish." }] }
+            contents: [{
+              parts: [{ text: promptText }]
+            }]
           })
         });
 
         const data = await res.json();
         document.getElementById('tempLoader')?.remove();
 
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           const aiResponse = data.candidates[0].content.parts[0].text;
           appendMessage('ai', aiResponse);
           speak(aiResponse);
+        } else if (data.error) {
+          appendMessage('ai', 'Google API Error: ' + data.error.message);
         } else {
-          appendMessage('ai', 'Error: Invalid API response. Check your API Key.');
+          appendMessage('ai', 'Received empty response from API.');
         }
       } catch (err) {
         document.getElementById('tempLoader')?.remove();
-        appendMessage('ai', 'Connection failed. Please check internet or API Key.');
+        appendMessage('ai', 'Network error: ' + err.message);
       }
     }
   </script>
