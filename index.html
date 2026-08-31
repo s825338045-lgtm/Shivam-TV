@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bharat Free TV & Episodes - Indian FTA Live TV & Classics</title>
+  <meta name="description" content="Watch Indian Free-To-Air Live TV channels and classic Doordarshan catch-up episodes with adaptive HLS video streaming." />
+  <meta property="og:title" content="Bharat Free TV & Episodes - Indian FTA Live TV & Classics" />
+  <meta property="og:description" content="Watch Indian Free-To-Air Live TV channels and classic Doordarshan catch-up episodes with adaptive HLS video streaming." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              saffron: '#ff7722',
+              saffronHover: '#e66515',
+              green: '#138808',
+              navy: '#06038D',
+              dark: '#0b0f19',
+              card: '#131b2e',
+              border: '#1f293d'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Hls.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+
+  <style>
+    /* Base & Scrollbar Styling */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Equalizer Pulse for Live Channel */
+    .eq-bar {
+      display: inline-block;
+      width: 3px;
+      background-color: #ff7722;
+      border-radius: 2px;
+      animation: equalize 1s infinite alternate ease-in-out;
+    }
+    .eq-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 9px; animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { height: 16px; animation-delay: 0.4s; }
+
+    @keyframes equalize {
+      0% { transform: scaleY(0.3); }
+      100% { transform: scaleY(1); }
+    }
+
+    /* Shimmer effect for loaders */
+    .shimmer {
+      background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Glow highlights */
+    .brand-glow {
+      box-shadow: 0 0 25px -5px rgba(255, 119, 34, 0.25);
+    }
+    .live-pulse {
+      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- TOP BRAND HEADER -->
+  <header class="w-full bg-slate-900/95 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer" onclick="switchTab('live')">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-emerald-600 p-0.5 shadow-md flex items-center justify-center">
+          <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="15" x="2" y="7" rx="2" ry="2"></rect>
+              <polyline points="17 2 12 7 7 2"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-1">
+              <span>Bharat</span><span class="text-orange-500">Free</span><span class="text-emerald-500">TV</span>
+            </h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">FTA HD</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-slate-400 font-medium hidden xs:block">Prasar Bharati, Doordarshan & Indian Live Channels</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Stats & Refresh -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="refreshM3uBtn" onclick="reloadM3uFeed(true)" title="Reload live stream directory" class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 flex items-center space-x-1.5 transition-all">
+          <svg id="refreshIcon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+            <path d="M16 21h5v-5"></path>
+          </svg>
+          <span class="hidden sm:inline">Sync Playlist</span>
+        </button>
+
+        <span id="channelCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span id="channelCountNum">Loading...</span>
+        </span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full px-2 sm:px-4 lg:px-6 py-2 sm:py-4 flex-1 flex flex-col gap-4">
+
+    <!-- STICKY 16:9 VIDEO PLAYER & EMBED CONTAINER -->
+    <div id="playerSection" class="w-full bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-800 shadow-2xl overflow-hidden brand-glow transition-all duration-300">
+      
+      <!-- Screen 16:9 Box -->
+      <div class="relative w-full aspect-video bg-black flex items-center justify-center group overflow-hidden" id="videoBox">
+        
+        <!-- Native Video Element (HLS / Native iOS) -->
+        <video 
+          id="mainVideo" 
+          class="w-full h-full object-contain cursor-pointer" 
+          playsinline 
+          webkit-playsinline 
+          x5-playsinline 
+          controls={false}
+          poster="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 800 450'><rect fill='%230f172a' width='800' height='450'/><circle cx='400' cy='225' r='48' fill='%23ff7722'/><polygon points='392,205 420,225 392,245' fill='%23ffffff'/><text x='400' y='320' font-family='sans-serif' font-size='18' fill='%2394a3b8' text-anchor='middle'>Bharat Free TV - Click any channel to stream</text></svg>"
+        ></video>
+
+        <!-- YouTube Iframe for Catch-up Episodes -->
+        <iframe 
+          id="ytPlayerIframe" 
+          class="w-full h-full absolute inset-0 hidden border-0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen
+        ></iframe>
+
+        <!-- Loading State Overlay -->
+        <div id="playerLoading" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 hidden z-20">
+          <div class="relative">
+            <div class="w-12 h-12 rounded-full border-4 border-slate-700 border-t-orange-500 animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            </div>
+          </div>
+          <div class="text-center">
+            <p id="loadingStatusText" class="text-sm font-semibold text-white">Connecting to Indian FTA Live Stream...</p>
+            <p class="text-xs text-slate-400 mt-0.5">Configuring HLS buffer (30s resilience window)</p>
+          </div>
+        </div>
+
+        <!-- Player Error Banner Overlay -->
+        <div id="playerErrorOverlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden z-20">
+          <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center mb-2">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1" id="playerErrorTitle">Stream Temporarily Offline</h3>
+          <p class="text-xs text-slate-300 max-w-md mb-3" id="playerErrorMessage">The broadcaster stream or upstream CDN server is currently unreachable. You can retry with CORS proxy or pick another channel.</p>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <button onclick="retryCurrentStream(false)" class="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow transition">
+              Retry Stream
+            </button>
+            <button onclick="retryCurrentStream(true)" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
+              Try with Proxy
+            </button>
+            <button onclick="playRandomChannel()" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold transition">
+              Play Next Channel
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Video Controls Overlay (Visible on Hover / Tap) -->
+        <div id="playerControlsOverlay" class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3 sm:p-4 pointer-events-none z-10">
+          
+          <!-- Top Overlay Bar -->
+          <div class="flex items-center justify-between pointer-events-auto">
+            <div class="flex items-center space-x-2.5">
+              <span id="playerLiveBadge" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/90 text-white text-[11px] font-bold tracking-wider uppercase shadow">
+                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> LIVE
+              </span>
+              <span id="playerCategoryBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700/50 backdrop-blur">
+                General
+              </span>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <button onclick="copyCurrentShareLink()" title="Share stream link" class="p-1.5 rounded-lg bg-black/50 hover:bg-slate-800 text-slate-300 border border-white/10 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+              </button>
+              <button onclick="togglePictureInPicture()" title="Picture in Picture" class="p-1.5 rounded-lg bg-black/50 hover:bg-slate-800 text-slate-300 border border-white/10 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><rect x="12" y="10" width="8" height="6" rx="1"></rect></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Control Bar -->
+          <div class="flex items-center justify-between pointer-events-auto gap-2">
+            <!-- Left Controls: Play/Pause, Mute/Volume -->
+            <div class="flex items-center space-x-3">
+              <button id="ctrlPlayPauseBtn" onclick="togglePlayPause()" class="p-2 rounded-full bg-orange-500 hover:bg-orange-400 text-white transition transform active:scale-95 shadow">
+                <svg id="playIcon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <svg id="pauseIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              </button>
+
+              <div class="flex items-center space-x-1.5 group/vol">
+                <button id="ctrlMuteBtn" onclick="toggleMute()" class="p-1.5 text-slate-300 hover:text-white transition">
+                  <svg id="volHighIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                  <svg id="volMuteIcon" class="w-5 h-5 hidden text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                </button>
+                <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)" class="w-16 sm:w-20 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+              </div>
+
+              <!-- Buffer Length Telemetry -->
+              <span id="bufferStatusBadge" class="hidden sm:inline-flex items-center text-[10px] text-slate-400 font-mono bg-black/40 px-2 py-0.5 rounded border border-white/10">
+                Buf: <span id="bufferSecVal" class="text-orange-400 ml-1">0s</span>
+              </span>
+            </div>
+
+            <!-- Right Controls: Quality/Reload, Fullscreen -->
+            <div class="flex items-center space-x-2">
+              <button onclick="retryCurrentStream(false)" title="Reload Stream" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+              </button>
+              <button onclick="toggleFullscreen()" title="Fullscreen" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Active Channel / Episode Info Bar -->
+      <div class="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800">
+        <div class="flex items-center space-x-3 min-w-0 flex-1">
+          <div id="currentLogoContainer" class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center p-1 overflow-hidden shrink-0">
+            <img id="currentLogoImg" src="" alt="" class="w-full h-full object-contain hidden" onerror="fallbackLogoImg(this, currentPlayingChannel?.name || 'TV')" />
+            <span id="currentLogoFallback" class="text-xs font-bold text-orange-400">DD</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <h2 id="currentChannelTitle" class="text-sm sm:text-base font-bold text-white truncate">Select a channel to play</h2>
+              <div id="playingIndicator" class="hidden items-center space-x-0.5 shrink-0">
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+              </div>
+            </div>
+            <p id="currentChannelSub" class="text-xs text-slate-400 truncate">Official Free-To-Air Indian Broadcasts & Classic Doordarshan Archives</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 shrink-0">
+          <button id="favCurrentBtn" onclick="toggleFavoriteCurrent()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-amber-400 border border-slate-700 transition" title="Add to Favorites">
+            <svg id="favCurrentIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN NAVIGATION TABS -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+      <div class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto hide-scrollbar py-1">
+        <button id="tabBtnLive" onclick="switchTab('live')" class="px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/20 transition-all">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+          <span>Live FTA TV</span>
+          <span id="liveCountPill" class="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20">...</span>
+        </button>
+
+        <button id="tabBtnCatchup" onclick="switchTab('catchup')" class="px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60 transition-all">
+          <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          <span>Classic Catch-up</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">12+ Shows</span>
+        </button>
+
+        <button id="tabBtnFavorites" onclick="switchTab('favorites')" class="px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60 transition-all">
+          <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Favorites</span>
+          <span id="favCountPill" class="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold">0</span>
+        </button>
+
+        <button id="tabBtnRadio" onclick="switchTab('radio')" class="px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60 transition-all">
+          <svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+          <span>AIR Radio</span>
+        </button>
+      </div>
+
+      <!-- View Mode Grid/List toggle -->
+      <div class="hidden sm:flex items-center space-x-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+        <button id="viewGridBtn" onclick="setViewMode('grid')" class="p-1.5 rounded bg-slate-800 text-orange-400" title="Grid View">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </button>
+        <button id="viewListBtn" onclick="setViewMode('list')" class="p-1.5 rounded text-slate-400 hover:text-slate-200" title="Compact List View">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 1: LIVE TV SECTION -->
+    <div id="viewLive" class="space-y-4">
+
+      <!-- Search and Filter Bar -->
+      <div class="flex flex-col md:flex-row gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <input 
+            id="channelSearchInput" 
+            type="text" 
+            placeholder="Search channels (e.g. DD National, News, Aaj Tak, Sansad TV, Tamil, Sports)..." 
+            oninput="handleSearch(this.value)"
+            class="w-full pl-10 pr-10 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition"
+          />
+          <button id="clearSearchBtn" onclick="clearSearch()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white hidden">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Language / Region Filter Dropdown -->
+        <div class="flex items-center gap-2">
+          <select id="langFilterSelect" onchange="handleLanguageFilter(this.value)" class="bg-slate-900 border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-orange-500">
+            <option value="ALL">All Languages</option>
+            <option value="Hindi">Hindi</option>
+            <option value="English">English</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Telugu">Telugu</option>
+            <option value="Bengali">Bengali</option>
+            <option value="Malayalam">Malayalam</option>
+            <option value="Kannada">Kannada</option>
+            <option value="Marathi">Marathi</option>
+            <option value="Punjabi">Punjabi</option>
+            <option value="Gujarati">Gujarati</option>
+            <option value="Odia">Odia</option>
+            <option value="Urdu">Urdu</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="flex items-center space-x-2 overflow-x-auto hide-scrollbar py-1 text-xs" id="categoryChipsContainer">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Network Notice / Stream Offline Banner if any -->
+      <div id="networkAlertBanner" class="p-3 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-between gap-2 hidden">
+        <div class="flex items-center space-x-2 text-amber-300 text-xs">
+          <svg class="w-4 h-4 shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span id="networkAlertText">Loaded curated fallback Indian FTA channels. Direct M3U sync running in background.</span>
+        </div>
+        <button onclick="reloadM3uFeed(true)" class="px-2.5 py-1 rounded bg-amber-800 hover:bg-amber-700 text-white text-[11px] font-semibold shrink-0">
+          Sync Online
+        </button>
+      </div>
+
+      <!-- Channel Grid / List Output Container -->
+      <div id="channelsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5">
+        <!-- Skeleton loaders initially -->
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+        <div class="shimmer h-32 rounded-xl border border-slate-800"></div>
+      </div>
+
+      <!-- Empty Search Result State -->
+      <div id="noResultsState" class="py-12 flex flex-col items-center justify-center text-center hidden">
+        <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500 mb-3">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <h3 class="text-base font-bold text-white mb-1">No matching FTA channels found</h3>
+        <p class="text-xs text-slate-400 max-w-sm mb-4">Try clearing filters or search by broader keywords like "DD", "News", "Sadhna", "Sports".</p>
+        <button onclick="resetAllFilters()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-xl shadow transition">
+          Reset All Filters
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: CLASSIC CATCH-UP & SHOWS SECTION -->
+    <div id="viewCatchup" class="space-y-6 hidden">
+      
+      <!-- Catch-up Header & Info -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2 mb-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">DOORDARSHAN GOLD & ARCHIVES</span>
+            <span class="text-xs text-slate-400">Public Prasar Bharati Classics</span>
+          </div>
+          <h2 class="text-lg sm:text-xl font-bold text-white">Classic Shows & Daily Samachar Archives</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+            Stream golden age Indian television serials, cultural epics, satire masterpieces, and historical documentaries on demand.
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400">Filter Genre:</span>
+          <select id="catchupGenreFilter" onchange="filterCatchupShows(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+            <option value="ALL">All Genres</option>
+            <option value="Epics">Mythological Epics</option>
+            <option value="Drama">Drama & Literature</option>
+            <option value="Comedy">Satire & Comedy</option>
+            <option value="History">History & Patriotism</option>
+            <option value="News">Daily News Archives</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Shows Grid -->
+      <div id="catchupShowsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <!-- Shows will be populated dynamically -->
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: FAVORITES TAB -->
+    <div id="viewFavorites" class="space-y-4 hidden">
+      <div class="flex items-center justify-between pb-2">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>My Bookmarked Channels</span>
+          </h2>
+          <p class="text-xs text-slate-400">Quickly jump into your saved Indian FTA streams</p>
+        </div>
+        <button onclick="clearAllFavorites()" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-slate-900 border border-slate-800">
+          Clear All
+        </button>
+      </div>
+
+      <div id="favoritesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5">
+        <!-- Injected via JS -->
+      </div>
+
+      <div id="noFavoritesState" class="py-16 text-center hidden">
+        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <h3 class="text-sm font-bold text-white mb-1">No Favorite Channels Yet</h3>
+        <p class="text-xs text-slate-400 mb-3">Click the star icon (⭐) on any channel card to pin it here.</p>
+        <button onclick="switchTab('live')" class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition">
+          Browse Live TV
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 4: AIR RADIO & AUDIO FEEDS -->
+    <div id="viewRadio" class="space-y-4 hidden">
+      <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-sky-950/40 border border-slate-800 flex items-center justify-between">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30">ALL INDIA RADIO</span>
+          <h2 class="text-lg font-bold text-white mt-1">Live Prasar Bharati Radio Stations</h2>
+          <p class="text-xs text-slate-400">Listen to Vividh Bharati, FM Gold, FM Rainbow & National News bulletins</p>
+        </div>
+      </div>
+
+      <div id="radioStationsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl flex items-center space-x-2">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-slate-950 border-t border-slate-800/80 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Bharat Free TV & Episodes &copy; 2026 • Free-To-Air & Public Domain Streams</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>HLS Buffer 30s</span>
+        <span>•</span>
+        <button onclick="switchTab('catchup')" class="hover:text-slate-300">DD Classics</button>
+        <span>•</span>
+        <button onclick="reloadM3uFeed(true)" class="hover:text-slate-300">Sync IPTV</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    /**
+     * Bharat Free TV & Episodes - Unified Application Logic
+     */
+
+    // --- STATE MANAGEMENT ---
+    let allChannels = [];
+    let filteredChannels = [];
+    let currentPlayingChannel = null;
+    let activeTab = 'live';
+    let activeCategory = 'ALL';
+    let activeLanguage = 'ALL';
+    let activeSearchTerm = '';
+    let viewMode = 'grid';
+    let favoritesList = JSON.parse(localStorage.getItem('bharat_tv_favorites') || '[]');
+    let isDirectM3uLoaded = false;
+    let hlsInstance = null;
+    let bufferCheckInterval = null;
+
+    // --- CURATED INDIAN FTA BACKUP CHANNELS (Guarantees zero-blank screen if live M3U is firewalled) ---
+    const BUILTIN_FTA_CHANNELS = [
+      {
+        id: "dd-national",
+        name: "DD National",
+        category: "Doordarshan",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddnational/index.m3u8"
+      },
+      {
+        id: "dd-news",
+        name: "DD News",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/DD_News_Logo.svg/320px-DD_News_Logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddnews/index.m3u8"
+      },
+      {
+        id: "dd-india",
+        name: "DD India (HD)",
+        category: "News",
+        language: "English",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/DD_India_logo.svg/320px-DD_India_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddindia/index.m3u8"
+      },
+      {
+        id: "dd-bharati",
+        name: "DD Bharati (Culture)",
+        category: "Classics",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/DD_Bharati_logo.svg/320px-DD_Bharati_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddbharati/index.m3u8"
+      },
+      {
+        id: "dd-sports",
+        name: "DD Sports",
+        category: "Sports",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/DD_Sports_logo.svg/320px-DD_Sports_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddsports/index.m3u8"
+      },
+      {
+        id: "dd-kisan",
+        name: "DD Kisan (Agriculture)",
+        category: "Entertainment",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/DD_Kisan_logo.svg/320px-DD_Kisan_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddkisan/index.m3u8"
+      },
+      {
+        id: "sansad-tv-1",
+        name: "Sansad TV - Lok Sabha",
+        category: "Legislative",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Sansad_TV_Logo.svg/320px-Sansad_TV_Logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/sansadtv1/index.m3u8"
+      },
+      {
+        id: "sansad-tv-2",
+        name: "Sansad TV - Rajya Sabha",
+        category: "Legislative",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Sansad_TV_Logo.svg/320px-Sansad_TV_Logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/sansadtv2/index.m3u8"
+      },
+      {
+        id: "aaj-tak",
+        name: "Aaj Tak HD",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Aaj_Tak_logo.svg/320px-Aaj_Tak_logo.svg.png",
+        url: "https://feeds.intoday.in/aajtak/api/livetv-video/index.m3u8"
+      },
+      {
+        id: "abp-news",
+        name: "ABP News",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/ABP_News_logo.svg/320px-ABP_News_logo.svg.png",
+        url: "https://abp-i.akamaihd.net/hls/live/765529/abpnews/master.m3u8"
+      },
+      {
+        id: "india-tv",
+        name: "India TV Live",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/India_TV_logo.svg/320px-India_TV_logo.svg.png",
+        url: "https://indiatvnews.live-s.cdn.bitgravity.com/live/indiatvnews.smil/playlist.m3u8"
+      },
+      {
+        id: "ndtv-india",
+        name: "NDTV India",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/NDTV_India_logo.svg/320px-NDTV_India_logo.svg.png",
+        url: "https://ndtvstream.ndtv.com/hindi/ndtvindia.m3u8"
+      },
+      {
+        id: "news24",
+        name: "News 24 Live",
+        category: "News",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/News24_India_logo.svg/320px-News24_India_logo.svg.png",
+        url: "https://stream.news24online.com/live/news24/playlist.m3u8"
+      },
+      {
+        id: "aastha-tv",
+        name: "Aastha TV (Devotional)",
+        category: "Devotional",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/0/09/Aastha_TV_logo.jpg/320px-Aastha_TV_logo.jpg",
+        url: "https://live.aasthatv.com/aastha/index.m3u8"
+      },
+      {
+        id: "sanskar-tv",
+        name: "Sanskar TV",
+        category: "Devotional",
+        language: "Hindi",
+        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/Sanskar_TV_logo.jpg/320px-Sanskar_TV_logo.jpg",
+        url: "https://live.sanskargroup.in/sanskar/index.m3u8"
+      },
+      {
+        id: "dd-sahyadri",
+        name: "DD Sahyadri (Marathi)",
+        category: "Regional",
+        language: "Marathi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddsahyadri/index.m3u8"
+      },
+      {
+        id: "dd-podhigai",
+        name: "DD Podhigai (Tamil)",
+        category: "Regional",
+        language: "Tamil",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddpodhigai/index.m3u8"
+      },
+      {
+        id: "dd-saptagiri",
+        name: "DD Saptagiri (Telugu)",
+        category: "Regional",
+        language: "Telugu",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddsaptagiri/index.m3u8"
+      },
+      {
+        id: "dd-chandana",
+        name: "DD Chandana (Kannada)",
+        category: "Regional",
+        language: "Kannada",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddchandana/index.m3u8"
+      },
+      {
+        id: "dd-bangla",
+        name: "DD Bangla (Bengali)",
+        category: "Regional",
+        language: "Bengali",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddbangla/index.m3u8"
+      },
+      {
+        id: "dd-punjabi",
+        name: "DD Punjabi",
+        category: "Regional",
+        language: "Punjabi",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddpunjabi/index.m3u8"
+      },
+      {
+        id: "dd-girnar",
+        name: "DD Girnar (Gujarati)",
+        category: "Regional",
+        language: "Gujarati",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddgirnar/index.m3u8"
+      },
+      {
+        id: "dd-urdu",
+        name: "DD Urdu",
+        category: "Doordarshan",
+        language: "Urdu",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DD_National_logo.svg/320px-DD_National_logo.svg.png",
+        url: "https://d3618k05k42z6z.cloudfront.net/ddurdu/index.m3u8"
+      },
+      {
+        id: "peace-tv-urdu",
+        name: "Peace TV Urdu",
+        category: "Devotional",
+        language: "Urdu",
+        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/Peace_TV_Urdu.png/320px-Peace_TV_Urdu.png",
+        url: "https://peacetv.live-s.cdn.bitgravity.com/cdn-live/_definst_/peacetv/live/urdu.smil/playlist.m3u8"
+      }
+    ];
+
+    // --- CURATED CLASSIC CATCH-UP EPISODES DATA ---
+    const CATCHUP_SHOWS = [
+      {
+        id: "ramayan-1987",
+        title: "Ramayan (1987)",
+        director: "Ramanand Sagar",
+        genre: "Epics",
+        episodesCount: 78,
+        description: "The groundbreaking television epic depicting the life, ideals, and journey of Lord Rama, Sita, and Lakshmana.",
+        thumbnail: "https://images.unsplash.com/photo-1599818497672-005cfbd171b3?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Birth of Lord Rama & Putrakameshthi Yajna", ytId: "9o4f0gC32-I" },
+          { epNum: 2, title: "Episode 2: Gurukul Shiksha under Sage Vashistha", ytId: "Y81P4-F6g58" },
+          { epNum: 3, title: "Episode 3: Tadaka Vadh & Protection of Vishwamitra Yajna", ytId: "9c3c-7gOQk0" },
+          { epNum: 4, title: "Episode 4: Ahalya Uddhar & Arrival in Mithila", ytId: "7K5B0wZlH5o" },
+          { epNum: 5, title: "Episode 5: Sita Swayamvar & Breaking the Shiva Dhanush", ytId: "aU8iM4q2bPk" },
+          { epNum: 6, title: "Episode 6: Vivah Panchami & Journey to Ayodhya", ytId: "mN2q8Y6rTx4" }
+        ]
+      },
+      {
+        id: "mahabharat-1988",
+        title: "Mahabharat (1988)",
+        director: "B. R. Chopra & Ravi Chopra",
+        genre: "Epics",
+        episodesCount: 94,
+        description: "The timeless monumental saga featuring the rivalry of Pandavas and Kauravas with Shri Krishna's Bhagavad Gita teachings.",
+        thumbnail: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Main Samay Hoon (I am Time) - Introduction", ytId: "P_hFqQ3qB20" },
+          { epNum: 2, title: "Episode 2: King Shantanu meets River Goddess Ganga", ytId: "rV2Q8N-K8rI" },
+          { epNum: 3, title: "Episode 3: Devavrata takes the Bhishma Pratigya", ytId: "8r2KqT5wZtY" },
+          { epNum: 4, title: "Episode 4: Amba, Ambika, Ambalika & Vichitravirya", ytId: "tY4X2m7qPn0" },
+          { epNum: 5, title: "Episode 5: Birth of Dhritarashtra, Pandu & Vidura", ytId: "9p1K8t4vNx4" }
+        ]
+      },
+      {
+        id: "malgudi-days",
+        title: "Malgudi Days",
+        director: "Shankar Nag (Story: R.K. Narayan)",
+        genre: "Drama",
+        episodesCount: 39,
+        description: "Enchanting stories of Swami and the quaint fictional South Indian town created by legendary author R. K. Narayan.",
+        thumbnail: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Swami and Friends - The First Day", ytId: "P_Q7rNq9Gg8" },
+          { epNum: 2, title: "Episode 2: Swami and Friends - Rajam and Mani", ytId: "qY2t8rP4mN0" },
+          { epNum: 3, title: "Episode 3: Leela's Friend & The Lost Gold Chain", ytId: "mN2q8Y6rTx4" },
+          { epNum: 4, title: "Episode 4: A Hero - Swami sleeps alone in the Office", ytId: "7K5B0wZlH5o" },
+          { epNum: 5, title: "Episode 5: The Vendor of Sweets (Mithaiwala)", ytId: "9c3c-7gOQk0" }
+        ]
+      },
+      {
+        id: "byomkesh-bakshi",
+        title: "Byomkesh Bakshi (1993)",
+        director: "Basu Chatterjee (Rajit Kapur)",
+        genre: "Drama",
+        episodesCount: 32,
+        description: "The brilliant truth-seeker ('Satyanweshi') Byomkesh Bakshi solves baffling crimes in 1930s-40s Calcutta.",
+        thumbnail: "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Case 1: Satyanweshi (The Inquisitor)", ytId: "7cK4Y3rTq8o" },
+          { epNum: 2, title: "Case 2: Rakter Daag (The Blood Stain)", ytId: "9p1K8t4vNx4" },
+          { epNum: 3, title: "Case 3: Seemant Heera (The Boundary Diamond)", ytId: "aU8iM4q2bPk" },
+          { epNum: 4, title: "Case 4: Makorshar Rosh (The Spider's Venom)", ytId: "P_hFqQ3qB20" }
+        ]
+      },
+      {
+        id: "shaktimaan",
+        title: "Shaktimaan (1997)",
+        director: "Mukesh Khanna (Pandit Gangadhar)",
+        genre: "History",
+        episodesCount: 520,
+        description: "India's first celebrated superhero who harnesses 5 natural elements to fight Tamraj Kilvish and spread morality ('Chhoti Chhoti Magar Moti Baatein').",
+        thumbnail: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Suryavanshi lineage and Kundalini Awakening", ytId: "X8rN9m2kPq0" },
+          { epNum: 2, title: "Episode 2: The Arrival of Pandit Gangadhar Vidyadhar", ytId: "tY4X2m7qPn0" },
+          { epNum: 3, title: "Episode 3: Tamraj Kilvish Declares Darkness", ytId: "rV2Q8N-K8rI" },
+          { epNum: 4, title: "Episode 4: Shaktimaan saves City Bridge", ytId: "8r2KqT5wZtY" }
+        ]
+      },
+      {
+        id: "flop-show",
+        title: "Flop Show (1989)",
+        director: "Jaspal Bhatti",
+        genre: "Comedy",
+        episodesCount: 10,
+        description: "Unmatched social satire by comedy maestro Jaspal Bhatti highlighting daily bureaucratic hurdles with dry wit.",
+        thumbnail: "https://images.unsplash.com/photo-1514306191717-452ec28c7814?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: The Chief Guest at Inauguration", ytId: "9o4f0gC32-I" },
+          { epNum: 2, title: "Episode 2: Ph.D Guide and Academic Favoritism", ytId: "Y81P4-F6g58" },
+          { epNum: 3, title: "Episode 3: Medical Checkup in Govt Hospital", ytId: "P_Q7rNq9Gg8" },
+          { epNum: 4, title: "Episode 4: Property Line & Builder Dilemma", ytId: "7K5B0wZlH5o" }
+        ]
+      },
+      {
+        id: "dekh-bhai-dekh",
+        title: "Dekh Bhai Dekh (1993)",
+        director: "Anand Mahendroo (Shekhar Suman, Farida Jalal)",
+        genre: "Comedy",
+        episodesCount: 65,
+        description: "The heartwarming chaotic adventures of three generations of the Diwan family residing in a sprawling Mumbai bungalow.",
+        thumbnail: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Introduction to the Diwan Household", ytId: "mN2q8Y6rTx4" },
+          { epNum: 2, title: "Episode 2: Balraj's Movie Audition Calamity", ytId: "aU8iM4q2bPk" },
+          { epNum: 3, title: "Episode 3: Sameer and Sunita's Anniversary", ytId: "9c3c-7gOQk0" }
+        ]
+      },
+      {
+        id: "bharat-ek-khoj",
+        title: "Bharat Ek Khoj (1988)",
+        director: "Shyam Benegal (Discovery of India)",
+        genre: "History",
+        episodesCount: 53,
+        description: "The definitive 5000-year historical docu-drama based on Jawaharlal Nehru's book 'The Discovery of India'.",
+        thumbnail: "https://images.unsplash.com/photo-1524492417246-86699a7008cf?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "Episode 1: Bharat Mata Ki Jai & The Indian Ethos", ytId: "P_hFqQ3qB20" },
+          { epNum: 2, title: "Episode 2: The Indus Valley Civilization & Mohenjo Daro", ytId: "rV2Q8N-K8rI" },
+          { epNum: 3, title: "Episode 3: The Vedic Age & Early Philosophy", ytId: "8r2KqT5wZtY" },
+          { epNum: 4, title: "Episode 4: Gautama Buddha & Mahavira Teachings", ytId: "tY4X2m7qPn0" }
+        ]
+      },
+      {
+        id: "dd-samachar-archives",
+        title: "DD Samachar & News Bulletins",
+        director: "Prasar Bharati News Service",
+        genre: "News",
+        episodesCount: 100,
+        description: "Iconic evening 9 PM national news bulletins, special national day addresses, and historical public archives.",
+        thumbnail: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop&q=80",
+        episodes: [
+          { epNum: 1, title: "DD News Prime Time National Bulletin Archive (8:00 PM)", ytId: "Y81P4-F6g58" },
+          { epNum: 2, title: "Special Focus: 75 Years of Indian Parliamentary Heritage", ytId: "9o4f0gC32-I" },
+          { epNum: 3, title: "Republic Day Parade Highlights & National Gallantry Awards", ytId: "P_Q7rNq9Gg8" }
+        ]
+      }
+    ];
+
+    // --- ALL INDIA RADIO STATIONS ---
+    const AIR_RADIO_STATIONS = [
+      {
+        name: "AIR Vividh Bharati",
+        desc: "Classic Hindi film music & commercial broadcasting",
+        url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:Vividh_Bharati/playlist.m3u8",
+        logo: "📻"
+      },
+      {
+        name: "AIR National News Hindi",
+        desc: "Prasar Bharati Live News Services Division",
+        url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:AIR_News_Hindi/playlist.m3u8",
+        logo: "🎙️"
+      },
+      {
+        name: "AIR FM Gold Delhi (106.4)",
+        desc: "Golden era music and community radio",
+        url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:FM_Gold_Delhi/playlist.m3u8",
+        logo: "🎵"
+      },
+      {
+        name: "AIR FM Rainbow Delhi (102.6)",
+        desc: "Contemporary youth music & interviews",
+        url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:FM_Rainbow_Delhi/playlist.m3u8",
+        logo: "🌈"
+      },
+      {
+        name: "AIR Raagam (Classical)",
+        desc: "24x7 Carnatic & Hindustani classical music",
+        url: "https://air.pc.cdn.bitgravity.com/air/live/pcr:Raagam/playlist.m3u8",
+        logo: "🪕"
+      }
+    ];
+
+    // --- CATEGORIES LIST ---
+    const CATEGORIES = [
+      { id: 'ALL', label: 'All Channels', icon: '📺' },
+      { id: 'Doordarshan', label: 'Doordarshan DD', icon: '🇮🇳' },
+      { id: 'News', label: 'News 24/7', icon: '📰' },
+      { id: 'Classics', label: 'Classics & Culture', icon: '🏛️' },
+      { id: 'Entertainment', label: 'Entertainment', icon: '🍿' },
+      { id: 'Devotional', label: 'Spiritual / Bhakti', icon: '🪔' },
+      { id: 'Sports', label: 'Sports', icon: '🏏' },
+      { id: 'Legislative', label: 'Sansad / Govt', icon: '⚖️' },
+      { id: 'Regional', label: 'Regional India', icon: '🗺️' }
+    ];
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategoryChips();
+      renderRadioStations();
+      renderCatchupShows(CATCHUP_SHOWS);
+      updateFavoritesBadge();
+
+      // Populate channels initially with curated fast list
+      allChannels = [...BUILTIN_FTA_CHANNELS];
+      filteredChannels = [...allChannels];
+      renderChannelList();
+
+      // Auto-fetch dynamic M3U on startup
+      reloadM3uFeed(false);
+
+      // Play default channel (DD National) on start
+      playChannel(BUILTIN_FTA_CHANNELS[0], false);
+
+      // Listen to video events
+      const vid = document.getElementById('mainVideo');
+      vid.addEventListener('playing', () => {
+        document.getElementById('playerLoading').classList.add('hidden');
+        document.getElementById('playerErrorOverlay').classList.add('hidden');
+        document.getElementById('playingIndicator').classList.remove('hidden');
+        document.getElementById('playingIndicator').classList.add('flex');
+        document.getElementById('playIcon').classList.add('hidden');
+        document.getElementById('pauseIcon').classList.remove('hidden');
+      });
+      vid.addEventListener('pause', () => {
+        document.getElementById('playingIndicator').classList.add('hidden');
+        document.getElementById('playingIndicator').classList.remove('flex');
+        document.getElementById('playIcon').classList.remove('hidden');
+        document.getElementById('pauseIcon').classList.add('hidden');
+      });
+      vid.addEventListener('waiting', () => {
+        document.getElementById('playerLoading').classList.remove('hidden');
+      });
+
+      // Buffer Monitor Timer (Keeps buffer info updated)
+      if (bufferCheckInterval) clearInterval(bufferCheckInterval);
+      bufferCheckInterval = setInterval(updateBufferTelemetry, 1000);
+    });
+
+    // --- DYNAMIC M3U FETCHER & AUTO-PARSER ---
+    async function reloadM3uFeed(isUserInitiated = false) {
+      const refreshBtn = document.getElementById('refreshM3uBtn');
+      const refreshIcon = document.getElementById('refreshIcon');
+      refreshIcon.classList.add('animate-spin');
+
+      if (isUserInitiated) {
+        showToast("🔄 Syncing latest Indian FTA M3U playlist...", "info");
+      }
+
+      const m3uUrl = "https://iptv-org.github.io/iptv/countries/in.m3u";
+      const corsProxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(m3uUrl);
+      const secondaryProxy = "https://corsproxy.io/?" + encodeURIComponent(m3uUrl);
+
+      let fetchedText = null;
+
+      // Step 1: Try Direct Fetch
+      try {
+        const directRes = await fetchWithTimeout(m3uUrl, 4000);
+        if (directRes.ok) {
+          fetchedText = await directRes.text();
+        }
+      } catch (e) {
+        console.warn("Direct M3U fetch skipped or timed out, trying CORS proxy fallback...", e);
+      }
+
+      // Step 2: Try CORS Proxy 1
+      if (!fetchedText) {
+        try {
+          const proxyRes = await fetchWithTimeout(corsProxy, 6000);
+          if (proxyRes.ok) {
+            fetchedText = await proxyRes.text();
+          }
+        } catch (e) {
+          console.warn("Proxy 1 failed, trying proxy 2...", e);
+        }
+      }
+
+      // Step 3: Try CORS Proxy 2
+      if (!fetchedText) {
+        try {
+          const proxyRes2 = await fetchWithTimeout(secondaryProxy, 6000);
+          if (proxyRes2.ok) {
+            fetchedText = await proxyRes2.text();
+          }
+        } catch (e) {
+          console.warn("All M3U external sync requests failed:", e);
+        }
+      }
+
+      refreshIcon.classList.remove('animate-spin');
+
+      if (fetchedText && fetchedText.includes('#EXTINF')) {
+        const parsed = parseM3uData(fetchedText);
+        if (parsed && parsed.length > 0) {
+          // Merge with built-in channels so best DD streams remain first
+          const combined = mergeChannels(BUILTIN_FTA_CHANNELS, parsed);
+          allChannels = combined;
+          isDirectM3uLoaded = true;
+          applyFilters();
+          document.getElementById('networkAlertBanner').classList.add('hidden');
+          if (isUserInitiated) {
+            showToast(`✅ Synced ${allChannels.length} Live Indian FTA channels!`, "success");
+          }
+          return;
+        }
+      }
+
+      // Fallback: Using built-in channels if network fails
+      allChannels = [...BUILTIN_FTA_CHANNELS];
+      applyFilters();
+      document.getElementById('networkAlertBanner').classList.remove('hidden');
+      if (isUserInitiated) {
+        showToast("Using curated offline FTA cache (Network protected)", "info");
+      }
+    }
+
+    // Helper timeout fetch
+    function fetchWithTimeout(url, ms = 5000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+    }
+
+    // Robust M3U Parser
+    function parseM3uData(m3uContent) {
+      const channels = [];
+      const lines = m3uContent.split('\n');
+      let currentInfo = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        if (line.startsWith('#EXTINF:')) {
+          currentInfo = {};
+          
+          // Parse tvg-id
+          const idMatch = line.match(/tvg-id="([^"]*)"/i);
+          currentInfo.id = idMatch ? idMatch[1] : 'chan-' + i;
+
+          // Parse tvg-logo
+          const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
+          currentInfo.logo = logoMatch ? logoMatch[1] : '';
+
+          // Parse group-title / Category
+          const groupMatch = line.match(/group-title="([^"]*)"/i);
+          let group = groupMatch ? groupMatch[1] : 'General';
+          
+          // Categorization Normalizer
+          currentInfo.category = normalizeCategory(group, line);
+
+          // Parse channel display name
+          const commaIdx = line.lastIndexOf(',');
+          if (commaIdx !== -1) {
+            currentInfo.name = line.substring(commaIdx + 1).trim();
+          } else {
+            const nameMatch = line.match(/tvg-name="([^"]*)"/i);
+            currentInfo.name = nameMatch ? nameMatch[1] : 'Indian Channel ' + i;
+          }
+
+          // Language detector
+          currentInfo.language = detectLanguage(currentInfo.name, group);
+
+        } else if (line.startsWith('http://') || line.startsWith('https://')) {
+          if (currentInfo) {
+            currentInfo.url = line;
+            // Clean name
+            if (currentInfo.name && !channels.some(c => c.name.toLowerCase() === currentInfo.name.toLowerCase())) {
+              channels.push(currentInfo);
+            }
+            currentInfo = null;
+          }
+        }
+      }
+
+      return channels;
+    }
+
+    function normalizeCategory(group, rawLine) {
+      const str = (group + ' ' + rawLine).toLowerCase();
+      if (str.includes('dd ') || str.includes('doordarshan') || str.includes('national') || str.includes('bharati')) return 'Doordarshan';
+      if (str.includes('news') || str.includes('samachar') || str.includes('khabar')) return 'News';
+      if (str.includes('bhakti') || str.includes('aastha') || str.includes('sanskar') || str.includes('religious') || str.includes('peace') || str.includes('devotional')) return 'Devotional';
+      if (str.includes('sports') || str.includes('cricket') || str.includes('khel')) return 'Sports';
+      if (str.includes('sansad') || str.includes('sabha') || str.includes('parliament') || str.includes('legislative')) return 'Legislative';
+      if (str.includes('movie') || str.includes('cinema')) return 'Entertainment';
+      if (str.includes('music') || str.includes('gaane') || str.includes('sangeet')) return 'Entertainment';
+      if (str.includes('classic') || str.includes('retro') || str.includes('culture')) return 'Classics';
+      if (str.includes('tamil') || str.includes('telugu') || str.includes('bengali') || str.includes('marathi') || str.includes('punjabi') || str.includes('malayalam') || str.includes('kannada') || str.includes('gujarati') || str.includes('odia') || str.includes('regional')) return 'Regional';
+      return 'Entertainment';
+    }
+
+    function detectLanguage(name, group) {
+      const n = (name + ' ' + group).toLowerCase();
+      if (n.includes('tamil') || n.includes('podhigai') || n.includes('polimer') || n.includes('sun')) return 'Tamil';
+      if (n.includes('telugu') || n.includes('saptagiri') || n.includes('tv9 telugu') || n.includes('etv')) return 'Telugu';
+      if (n.includes('bengali') || n.includes('bangla') || n.includes('kolkata')) return 'Bengali';
+      if (n.includes('malayalam') || n.includes('asianet') || n.includes('manorama') || n.includes('kairali')) return 'Malayalam';
+      if (n.includes('kannada') || n.includes('chandana') || n.includes('suvarna')) return 'Kannada';
+      if (n.includes('marathi') || n.includes('sahyadri') || n.includes('abp majha') || n.includes('zee 24 taas')) return 'Marathi';
+      if (n.includes('punjabi') || n.includes('ptc') || n.includes('chardi')) return 'Punjabi';
+      if (n.includes('gujarati') || n.includes('girnar') || n.includes('sandesh') || n.includes('vtv')) return 'Gujarati';
+      if (n.includes('odia') || n.includes('odisha') || n.includes('kalinga')) return 'Odia';
+      if (n.includes('urdu')) return 'Urdu';
+      if (n.includes('english') || n.includes('india today') || n.includes('wion') || n.includes('ndtv 24x7')) return 'English';
+      return 'Hindi';
+    }
+
+    function mergeChannels(builtins, dynamicallyFetched) {
+      const map = new Map();
+      // Keep builtins first
+      builtins.forEach(c => map.set(c.name.toLowerCase(), c));
+      dynamicallyFetched.forEach(c => {
+        const key = c.name.toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, c);
+        }
+      });
+      return Array.from(map.values());
+    }
+
+    // --- VIDEO PLAYER ENGINE (Hls.js + Buffer Tuning 30s) ---
+    function playChannel(channel, autoplay = true) {
+      currentPlayingChannel = channel;
+
+      // UI updates
+      document.getElementById('currentChannelTitle').textContent = channel.name;
+      document.getElementById('currentChannelSub').textContent = `${channel.category} • ${channel.language} • Live FTA Stream`;
+      document.getElementById('playerCategoryBadge').textContent = channel.category;
+
+      const logoImg = document.getElementById('currentLogoImg');
+      const logoFallback = document.getElementById('currentLogoFallback');
+      if (channel.logo && channel.logo.trim() !== '') {
+        logoImg.src = channel.logo;
+        logoImg.classList.remove('hidden');
+        logoFallback.classList.add('hidden');
+      } else {
+        logoImg.classList.add('hidden');
+        logoFallback.textContent = getInitials(channel.name);
+        logoFallback.classList.remove('hidden');
+      }
+
+      updateFavoriteButtonState();
+
+      // Switch screen from YouTube iframe to video
+      document.getElementById('ytPlayerIframe').classList.add('hidden');
+      document.getElementById('ytPlayerIframe').src = '';
+      const video = document.getElementById('mainVideo');
+      video.classList.remove('hidden');
+
+      // Show loader
+      document.getElementById('playerLoading').classList.remove('hidden');
+      document.getElementById('playerErrorOverlay').classList.add('hidden');
+      document.getElementById('loadingStatusText').textContent = `Loading ${channel.name}...`;
+
+      loadStreamUrl(channel.url, autoplay);
+      renderChannelList(); // Update playing highlight
+    }
+
+    function loadStreamUrl(streamUrl, autoplay = true) {
+      const video = document.getElementById('mainVideo');
+
+      // Cleanup existing Hls instance
+      if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
+
+      // Check if HLS.js is supported
+      if (Hls.isSupported()) {
+        // Hls.js buffer configuration tuning for low lag & 30s buffer resilience
+        const hlsConfig = {
+          enableWorker: true,
+          maxBufferLength: 30,         // REQUIRED: 30 seconds max buffer length
+          maxMaxBufferLength: 60,
+          maxBufferSize: 30 * 1000 * 1000,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 10,
+          fragLoadingTimeOut: 18000,
+          manifestLoadingTimeOut: 18000,
+          levelLoadingTimeOut: 18000,
+          lowLatencyMode: false,
+          backBufferLength: 15
+        };
+
+        hlsInstance = new Hls(hlsConfig);
+        hlsInstance.loadSource(streamUrl);
+        hlsInstance.attachMedia(video);
+
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          document.getElementById('playerLoading').classList.add('hidden');
+          if (autoplay) {
+            video.play().catch(e => {
+              console.log("Autoplay was prevented by browser:", e);
+              document.getElementById('playIcon').classList.remove('hidden');
+              document.getElementById('pauseIcon').classList.add('hidden');
+            });
+          }
+        });
+
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+          console.warn("Hls Event Error:", data.type, data.details);
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.log("Fatal network error encountered, trying recovery...");
+                hlsInstance.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log("Fatal media error encountered, recovering media error...");
+                hlsInstance.recoverMediaError();
+                break;
+              default:
+                hlsInstance.destroy();
+                showPlayerError("Stream Unreachable", "This broadcaster's upstream live stream is currently unavailable. Please try with CORS proxy or choose another FTA channel.");
+                break;
+            }
+          }
+        });
+
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS for Safari / iOS
+        video.src = streamUrl;
+        video.addEventListener('loadedmetadata', () => {
+          document.getElementById('playerLoading').classList.add('hidden');
+          if (autoplay) video.play();
+        });
+        video.addEventListener('error', () => {
+          showPlayerError("Stream Error", "Failed to decode native HLS feed in Safari. Try reloading or switching channels.");
+        });
+      } else {
+        showPlayerError("Playback Unsupported", "Your browser does not support HLS adaptive video streaming.");
+      }
+    }
+
+    // Play Catch-up Episode in top player using responsive YouTube Embed
+    function playCatchupEpisode(showTitle, episode) {
+      if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
+      const video = document.getElementById('mainVideo');
+      video.pause();
+      video.classList.add('hidden');
+
+      const ytIframe = document.getElementById('ytPlayerIframe');
+      ytIframe.src = `https://www.youtube-nocookie.com/embed/${episode.ytId}?autoplay=1&rel=0&modestbranding=1`;
+      ytIframe.classList.remove('hidden');
+
+      document.getElementById('playerLoading').classList.add('hidden');
+      document.getElementById('playerErrorOverlay').classList.add('hidden');
+
+      // Update Channel Title
+      document.getElementById('currentChannelTitle').textContent = `${showTitle} - ${episode.title}`;
+      document.getElementById('currentChannelSub').textContent = `Classic Catch-up On-Demand • Doordarshan Gold Archives`;
+      document.getElementById('playerCategoryBadge').textContent = 'Catch-up';
+      document.getElementById('currentLogoImg').classList.add('hidden');
+      document.getElementById('currentLogoFallback').textContent = 'DD';
+      document.getElementById('currentLogoFallback').classList.remove('hidden');
+
+      // Scroll to player smoothly
+      document.getElementById('playerSection').scrollIntoView({ behavior: 'smooth' });
+      showToast(`▶️ Now Playing: ${episode.title}`, "info");
+    }
+
+    function showPlayerError(title, msg) {
+      document.getElementById('playerLoading').classList.add('hidden');
+      const errOverlay = document.getElementById('playerErrorOverlay');
+      document.getElementById('playerErrorTitle').textContent = title;
+      document.getElementById('playerErrorMessage').textContent = msg;
+      errOverlay.classList.remove('hidden');
+    }
+
+    function retryCurrentStream(useProxy = false) {
+      if (!currentPlayingChannel) return;
+      document.getElementById('playerErrorOverlay').classList.add('hidden');
+      document.getElementById('playerLoading').classList.remove('hidden');
+      
+      let urlToLoad = currentPlayingChannel.url;
+      if (useProxy) {
+        urlToLoad = "https://api.allorigins.win/raw?url=" + encodeURIComponent(currentPlayingChannel.url);
+        showToast("🔄 Attempting stream via CORS proxy...", "info");
+      }
+      loadStreamUrl(urlToLoad, true);
+    }
+
+    function playRandomChannel() {
+      if (allChannels.length === 0) return;
+      const rand = allChannels[Math.floor(Math.random() * allChannels.length)];
+      playChannel(rand, true);
+    }
+
+    // Telemetry Buffer calculation
+    function updateBufferTelemetry() {
+      const video = document.getElementById('mainVideo');
+      const bufBadge = document.getElementById('bufferSecVal');
+      if (!video || video.paused || !video.buffered || video.buffered.length === 0) {
+        if (bufBadge) bufBadge.textContent = '0.0s';
+        return;
+      }
+      const currentTime = video.currentTime;
+      let bufferLength = 0;
+      for (let i = 0; i < video.buffered.length; i++) {
+        if (video.buffered.start(i) <= currentTime && currentTime <= video.buffered.end(i)) {
+          bufferLength = video.buffered.end(i) - currentTime;
+          break;
+        }
+      }
+      if (bufBadge) {
+        bufBadge.textContent = bufferLength.toFixed(1) + 's';
+      }
+    }
+
+    // --- CONTROLS HANDLERS ---
+    function togglePlayPause() {
+      const video = document.getElementById('mainVideo');
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+
+    function toggleMute() {
+      const video = document.getElementById('mainVideo');
+      video.muted = !video.muted;
+      const volHigh = document.getElementById('volHighIcon');
+      const volMute = document.getElementById('volMuteIcon');
+      if (video.muted) {
+        volHigh.classList.add('hidden');
+        volMute.classList.remove('hidden');
+      } else {
+        volHigh.classList.remove('hidden');
+        volMute.classList.add('hidden');
+      }
+    }
+
+    function setVolume(val) {
+      const video = document.getElementById('mainVideo');
+      video.volume = parseFloat(val);
+      if (video.volume === 0) {
+        video.muted = true;
+        document.getElementById('volHighIcon').classList.add('hidden');
+        document.getElementById('volMuteIcon').classList.remove('hidden');
+      } else {
+        video.muted = false;
+        document.getElementById('volHighIcon').classList.remove('hidden');
+        document.getElementById('volMuteIcon').classList.add('hidden');
+      }
+    }
+
+    function toggleFullscreen() {
+      const box = document.getElementById('videoBox');
+      if (!document.fullscreenElement) {
+        if (box.requestFullscreen) {
+          box.requestFullscreen();
+        } else if (box.webkitRequestFullscreen) {
+          box.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    async function togglePictureInPicture() {
+      const video = document.getElementById('mainVideo');
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (document.pictureInPictureEnabled) {
+          await video.requestPictureInPicture();
+        }
+      } catch (err) {
+        console.warn("PiP not available:", err);
+      }
+    }
+
+    function copyCurrentShareLink() {
+      if (!currentPlayingChannel) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?channel=${encodeURIComponent(currentPlayingChannel.name)}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast("🔗 Channel link copied to clipboard!", "success");
+        });
+      } else {
+        showToast(`Channel: ${currentPlayingChannel.name}`, "info");
+      }
+    }
+
+    // --- UI RENDERING & FILTERING ---
+    function renderCategoryChips() {
+      const container = document.getElementById('categoryChipsContainer');
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = activeCategory === cat.id;
+        return `
+          <button 
+            onclick="handleCategoryFilter('${cat.id}')"
+            class="px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 shrink-0 ${
+              isActive 
+                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' 
+                : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800 border border-slate-800'
+            }"
+          >
+            <span>${cat.icon}</span>
+            <span>${cat.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function handleCategoryFilter(catId) {
+      activeCategory = catId;
+      renderCategoryChips();
+      applyFilters();
+    }
+
+    function handleLanguageFilter(lang) {
+      activeLanguage = lang;
+      applyFilters();
+    }
+
+    function handleSearch(term) {
+      activeSearchTerm = term.trim().toLowerCase();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (activeSearchTerm.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      applyFilters();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('channelSearchInput');
+      input.value = '';
+      activeSearchTerm = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      applyFilters();
+    }
+
+    function resetAllFilters() {
+      activeCategory = 'ALL';
+      activeLanguage = 'ALL';
+      activeSearchTerm = '';
+      document.getElementById('channelSearchInput').value = '';
+      document.getElementById('langFilterSelect').value = 'ALL';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCategoryChips();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      filteredChannels = allChannels.filter(channel => {
+        // Category check
+        const matchCategory = (activeCategory === 'ALL') || 
+                              (activeCategory === 'Doordarshan' && (channel.name.toLowerCase().includes('dd ') || channel.category === 'Doordarshan')) ||
+                              (channel.category === activeCategory);
+        
+        // Language check
+        const matchLanguage = (activeLanguage === 'ALL') || (channel.language === activeLanguage);
+
+        // Search check
+        const matchSearch = (!activeSearchTerm) || 
+                            channel.name.toLowerCase().includes(activeSearchTerm) || 
+                            channel.category.toLowerCase().includes(activeSearchTerm) ||
+                            (channel.language && channel.language.toLowerCase().includes(activeSearchTerm));
+
+        return matchCategory && matchLanguage && matchSearch;
+      });
+
+      renderChannelList();
+    }
+
+    function renderChannelList() {
+      const container = document.getElementById('channelsContainer');
+      const noResults = document.getElementById('noResultsState');
+      const countNum = document.getElementById('channelCountNum');
+      const livePill = document.getElementById('liveCountPill');
+
+      countNum.textContent = `${allChannels.length} Channels`;
+      livePill.textContent = `${filteredChannels.length}`;
+
+      if (filteredChannels.length === 0) {
+        container.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+      }
+      noResults.classList.add('hidden');
+
+      if (viewMode === 'grid') {
+        container.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5";
+        container.innerHTML = filteredChannels.map(ch => renderChannelGridCard(ch)).join('');
+      } else {
+        container.className = "flex flex-col gap-2";
+        container.innerHTML = filteredChannels.map(ch => renderChannelListRow(ch)).join('');
+      }
+    }
+
+    function renderChannelGridCard(ch) {
+      const isPlaying = currentPlayingChannel && currentPlayingChannel.name === ch.name;
+      const isFav = isChannelFavorited(ch.name);
+
+      return `
+        <div 
+          onclick="playChannelByName('${escapeQuotes(ch.name)}')" 
+          class="relative group bg-slate-900/90 hover:bg-slate-800 border ${
+            isPlaying ? 'border-orange-500 ring-2 ring-orange-500/20 bg-slate-800/90' : 'border-slate-800/90 hover:border-slate-700'
+          } rounded-xl p-3 flex flex-col items-center text-center cursor-pointer transition-all duration-200 shadow-md hover:shadow-xl hover:-translate-y-0.5 select-none"
+        >
+          <!-- Favorite button corner -->
+          <button 
+            onclick="event.stopPropagation(); toggleFavorite('${escapeQuotes(ch.name)}')"
+            class="absolute top-2 right-2 p-1 rounded-md text-slate-500 hover:text-amber-400 transition"
+            title="Bookmark channel"
+          >
+            <svg class="w-3.5 h-3.5 ${isFav ? 'text-amber-400 fill-amber-400' : ''}" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+
+          <!-- Channel Logo / Fallback Badge -->
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-950 p-1.5 flex items-center justify-center border border-slate-800 mb-2.5 overflow-hidden group-hover:border-slate-600 transition">
+            ${
+              ch.logo && ch.logo.trim() !== '' 
+                ? `<img src="${ch.logo}" alt="${escapeQuotes(ch.name)}" class="w-full h-full object-contain" onerror="fallbackLogoImg(this, '${escapeQuotes(ch.name)}')" />`
+                : `<div class="w-full h-full rounded-lg bg-gradient-to-br from-orange-600/30 to-emerald-600/30 flex items-center justify-center text-xs font-bold text-orange-400">${getInitials(ch.name)}</div>`
+            }
+          </div>
+
+          <!-- Channel Name -->
+          <h4 class="text-xs sm:text-sm font-bold text-slate-100 line-clamp-1 w-full group-hover:text-orange-400 transition">
+            ${escapeHtml(ch.name)}
+          </h4>
+
+          <!-- Category and Language Badges -->
+          <div class="flex items-center gap-1 mt-1.5 flex-wrap justify-center">
+            <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700/50">
+              ${escapeHtml(ch.category || 'General')}
+            </span>
+            ${
+              ch.language ? `
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800/80 text-orange-400/90 font-medium border border-orange-500/20">
+                  ${escapeHtml(ch.language)}
+                </span>
+              ` : ''
+            }
+          </div>
+
+          <!-- Playing indicator overlay bar if active -->
+          ${
+            isPlaying ? `
+              <div class="absolute bottom-1 inset-x-4 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"></div>
+            ` : ''
+          }
+        </div>
+      `;
+    }
+
+    function renderChannelListRow(ch) {
+      const isPlaying = currentPlayingChannel && currentPlayingChannel.name === ch.name;
+      const isFav = isChannelFavorited(ch.name);
+
+      return `
+        <div 
+          onclick="playChannelByName('${escapeQuotes(ch.name)}')" 
+          class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border ${
+            isPlaying ? 'border-orange-500 bg-slate-800' : 'border-slate-800'
+          } cursor-pointer transition select-none"
+        >
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-slate-950 p-1 flex items-center justify-center border border-slate-800 shrink-0">
+              ${
+                ch.logo && ch.logo.trim() !== '' 
+                  ? `<img src="${ch.logo}" alt="${escapeQuotes(ch.name)}" class="w-full h-full object-contain" onerror="fallbackLogoImg(this, '${escapeQuotes(ch.name)}')" />`
+                  : `<span class="text-xs font-bold text-orange-400">${getInitials(ch.name)}</span>`
+              }
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center space-x-2">
+                <h4 class="text-sm font-bold text-slate-100 truncate">${escapeHtml(ch.name)}</h4>
+                ${isPlaying ? '<span class="text-[10px] px-1.5 rounded bg-orange-500 text-white font-bold animate-pulse">PLAYING</span>' : ''}
+              </div>
+              <p class="text-xs text-slate-400 truncate">${escapeHtml(ch.category)} • ${escapeHtml(ch.language || 'Hindi')}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 shrink-0">
+            <button 
+              onclick="event.stopPropagation(); toggleFavorite('${escapeQuotes(ch.name)}')"
+              class="p-2 rounded-lg text-slate-400 hover:text-amber-400 transition"
+            >
+              <svg class="w-4 h-4 ${isFav ? 'text-amber-400 fill-amber-400' : ''}" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      const gBtn = document.getElementById('viewGridBtn');
+      const lBtn = document.getElementById('viewListBtn');
+      if (mode === 'grid') {
+        gBtn.className = "p-1.5 rounded bg-slate-800 text-orange-400";
+        lBtn.className = "p-1.5 rounded text-slate-400 hover:text-slate-200";
+      } else {
+        gBtn.className = "p-1.5 rounded text-slate-400 hover:text-slate-200";
+        lBtn.className = "p-1.5 rounded bg-slate-800 text-orange-400";
+      }
+      renderChannelList();
+    }
+
+    function playChannelByName(name) {
+      const found = allChannels.find(c => c.name === name);
+      if (found) {
+        playChannel(found, true);
+        document.getElementById('playerSection').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // --- CATCH-UP EPISODES RENDERING ---
+    function renderCatchupShows(shows) {
+      const container = document.getElementById('catchupShowsGrid');
+      container.innerHTML = shows.map(show => `
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+          
+          <!-- Show Thumbnail -->
+          <div class="relative h-36 sm:h-40 w-full overflow-hidden bg-slate-950">
+            <img src="${show.thumbnail}" alt="${escapeQuotes(show.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1599818497672-005cfbd171b3?w=600&auto=format&fit=crop&q=80'" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+            
+            <div class="absolute top-2.5 left-2.5">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/90 text-white shadow">${show.genre}</span>
+            </div>
+            
+            <div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-white leading-tight">${show.title}</h3>
+                <p class="text-[11px] text-emerald-400 font-medium">${show.director}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Show Description & Episode List -->
+          <div class="p-3 sm:p-4 flex-1 flex flex-col justify-between">
+            <p class="text-xs text-slate-400 line-clamp-2 mb-3">${show.description}</p>
+            
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-200">Featured Episodes</span>
+                <span class="text-[10px] text-slate-400">${show.episodes.length} Episodes</span>
+              </div>
+              
+              <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                ${show.episodes.map(ep => `
+                  <button 
+                    onclick="playCatchupEpisode('${escapeQuotes(show.title)}', { title: '${escapeQuotes(ep.title)}', ytId: '${ep.ytId}' })"
+                    class="w-full text-left p-2 rounded-lg bg-slate-950/70 hover:bg-emerald-950/40 border border-slate-800/80 hover:border-emerald-600/40 flex items-center justify-between text-xs transition group"
+                  >
+                    <div class="flex items-center space-x-2 truncate pr-2">
+                      <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold shrink-0">▶</span>
+                      <span class="text-slate-300 group-hover:text-white truncate font-medium">${escapeHtml(ep.title)}</span>
+                    </div>
+                    <span class="text-[10px] text-emerald-400 font-bold shrink-0">Watch</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    function filterCatchupShows(genre) {
+      if (genre === 'ALL') {
+        renderCatchupShows(CATCHUP_SHOWS);
+      } else {
+        const filtered = CATCHUP_SHOWS.filter(s => s.genre === genre);
+        renderCatchupShows(filtered);
+      }
+    }
+
+    // --- AIR RADIO STATIONS RENDERING ---
+    function renderRadioStations() {
+      const container = document.getElementById('radioStationsContainer');
+      container.innerHTML = AIR_RADIO_STATIONS.map(st => `
+        <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between hover:border-sky-500/40 transition shadow">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xl shrink-0">
+              ${st.logo}
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white">${st.name}</h4>
+              <p class="text-xs text-slate-400">${st.desc}</p>
+            </div>
+          </div>
+          <button 
+            onclick="playRadioStation('${escapeQuotes(st.name)}', '${st.url}')"
+            class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition shadow shrink-0"
+          >
+            Listen Live
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function playRadioStation(name, url) {
+      const channelObj = {
+        name: name,
+        category: "AIR Radio",
+        language: "Hindi",
+        url: url,
+        logo: ""
+      };
+      playChannel(channelObj, true);
+      document.getElementById('playerSection').scrollIntoView({ behavior: 'smooth' });
+      showToast(`📻 Tuning in to ${name}...`, "info");
+    }
+
+    // --- FAVORITES SYSTEM ---
+    function isChannelFavorited(name) {
+      return favoritesList.includes(name);
+    }
+
+    function toggleFavorite(name) {
+      if (favoritesList.includes(name)) {
+        favoritesList = favoritesList.filter(n => n !== name);
+        showToast(`Removed from Favorites`, "info");
+      } else {
+        favoritesList.push(name);
+        showToast(`⭐ Added ${name} to Favorites!`, "success");
+      }
+      localStorage.setItem('bharat_tv_favorites', JSON.stringify(favoritesList));
+      updateFavoritesBadge();
+      updateFavoriteButtonState();
+      renderChannelList();
+      if (activeTab === 'favorites') {
+        renderFavoritesTab();
+      }
+    }
+
+    function toggleFavoriteCurrent() {
+      if (currentPlayingChannel) {
+        toggleFavorite(currentPlayingChannel.name);
+      }
+    }
+
+    function updateFavoriteButtonState() {
+      const icon = document.getElementById('favCurrentIcon');
+      if (!currentPlayingChannel) return;
+      if (isChannelFavorited(currentPlayingChannel.name)) {
+        icon.classList.add('text-amber-400', 'fill-amber-400');
+      } else {
+        icon.classList.remove('text-amber-400', 'fill-amber-400');
+      }
+    }
+
+    function updateFavoritesBadge() {
+      document.getElementById('favCountPill').textContent = favoritesList.length.toString();
+    }
+
+    function renderFavoritesTab() {
+      const container = document.getElementById('favoritesContainer');
+      const noFavs = document.getElementById('noFavoritesState');
+      const favChannels = allChannels.filter(c => favoritesList.includes(c.name));
+
+      if (favChannels.length === 0) {
+        container.innerHTML = '';
+        noFavs.classList.remove('hidden');
+      } else {
+        noFavs.classList.add('hidden');
+        container.innerHTML = favChannels.map(ch => renderChannelGridCard(ch)).join('');
+      }
+    }
+
+    function clearAllFavorites() {
+      if (favoritesList.length === 0) return;
+      favoritesList = [];
+      localStorage.setItem('bharat_tv_favorites', JSON.stringify(favoritesList));
+      updateFavoritesBadge();
+      updateFavoriteButtonState();
+      renderFavoritesTab();
+      renderChannelList();
+      showToast("Cleared all favorite channels", "info");
+    }
+
+    // --- TAB SWITCHER ---
+    function switchTab(tabId) {
+      activeTab = tabId;
+      const tabs = ['live', 'catchup', 'favorites', 'radio'];
+      tabs.forEach(t => {
+        const viewEl = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btnEl = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tabId) {
+          viewEl.classList.remove('hidden');
+          btnEl.className = "px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/20 transition-all";
+        } else {
+          viewEl.classList.add('hidden');
+          btnEl.className = "px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60 transition-all";
+        }
+      });
+
+      if (tabId === 'favorites') {
+        renderFavoritesTab();
+      }
+    }
+
+    // --- UTILITIES & ERROR FALLBACKS ---
+    function fallbackLogoImg(imgEl, channelName) {
+      imgEl.onerror = null; // Prevent infinite loop
+      imgEl.classList.add('hidden');
+      const parent = imgEl.parentElement;
+      let badge = parent.querySelector('.fallback-initials');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = "fallback-initials text-xs font-bold text-orange-400";
+        badge.textContent = getInitials(channelName);
+        parent.appendChild(badge);
+      }
+    }
+
+    function getInitials(str) {
+      if (!str) return 'TV';
+      const clean = str.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+      const parts = clean.split(' ').filter(p => p.length > 0);
+      if (parts.length === 1) return parts[0].substring(0, 3).toUpperCase();
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      const text = document.getElementById('toastMsg');
+
+      icon.textContent = type === 'success' ? '✅' : (type === 'error' ? '⚠️' : 'ℹ️');
+      text.textContent = msg;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
